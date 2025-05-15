@@ -2,31 +2,49 @@
 
 int main () {
 
-    char list[1000];
-    char answer[1000];
-    int max_count = 0, current_count = 0, flag = 1; 
+    // initializing variables and counters
+    char list[1000] = {};
+    char answer[1000] = {};
+    int max_count = 0, current_count, list_counting = 0; 
+    int flag, permute;
+    
+    while (scanf("%s", list) != EOF){
 
-    while (scanf("%s", list) != EOF) {
-        for (int i = 0; i < strlen(list) && flag == 1; i++){
-            if ((i == 1) && ((strcmp(list[i]), " ") == 0)){
+        // counting the list 
+        while (list[list_counting] != '\0'){
+            list_counting++; 
+        }
+        
+        // defining the max list in each input (updates or not?)
+        flag = 1;
+        current_count = 0;
+        permute = 0; 
+        for (int i = 0; i < list_counting && flag == 1; i++){
+            if ((i == 1) && (list[i] != ' ')){
                 current_count += 1;
             } 
             
-            else if (strcmp(list[i], ",") == 0){
+            else if (list[i] == ','){
                 current_count += 1;
             }
             
-            else if (strcmp(list[i], "]") == 0){
+            else if (list[i] == ']'){
                 flag = 0; 
 
                 if (max_count < current_count){
                     max_count = current_count;
-                    // need to atualize the current max list 
-                    strcpy(answer, list);
+                    
+                    // way that i found to transform the answer array without string.h functions
+                    while (list[permute] != '\0'){
+                        answer[permute] = list[permute];
+                        permute++; 
+                    }
                 }
             }
         }
     }
 
+    // print function returns the right string
+    printf("%s\n", answer);
     return 0;
 }

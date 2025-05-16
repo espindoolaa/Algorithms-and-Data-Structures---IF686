@@ -3,8 +3,8 @@
 int main () {
 
     // initializing variables and counters
-    char list[1000] = {};
-    char answer[1000] = {};
+    char list[10000] = {};
+    char answer[10000] = {};
     int max_count = 0, current_count, list_counting = 0; 
     int flag, permute;
     

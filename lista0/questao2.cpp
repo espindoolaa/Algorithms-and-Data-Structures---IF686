@@ -1,42 +1,38 @@
-#include <stdio.h>
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
 
 int main () {
 
-    char expression[1001] = {};
-    scanf("%s", expression);
-    int verified = 0, wellConstructExpression = 1, run = 1;
-    int value = 1;
+    string expression;
+    stack<char> pilha; 
+    getline(cin, expression); // using this method because has the possibility of exists spaces in the string recieved
+    int wellConstructExpression = 1, run = 1;
 
-    // here i know that's possible to use string.h library. therefore, different from the previous question, i will use this function to resolve the problem easily.
-    for (int i = 0; i < strlen(expression) && run == 1; i++){
-        for (int j = value; j < strlen(expression) && run == 1; j++){
-            if (expression[i] == '{'){
-                // verifying if the pair exists
-                if (!verified){
-                    if (expression[j] == '}'){
-                        verified = 1;
-                        value = j;
-                    }
-                }
+    for (int i = 0; i < expression.length() && run == 1; i++){
+        if (expression[i] == '{'){
+            pilha.push('{');
+        } 
 
-                else {
-                    if ((j == strlen(expression) - 1) && (verified == 0)){
-                        // the expression isn't well constructed
-                        wellConstructExpression = 0;
-                        run = 0;
-                    }
- 
-                }
+        else if (expression[i] != ' '){
+            if (!pilha.empty()){
+                pilha.pop();
+            } 
+
+            else {
+                wellConstructExpression = 0;
+                run = 0;
             }
         }
     }
 
     if (wellConstructExpression){
-        printf("S");
+        printf("S\n");
     }
     
     else {
-        printf("N");
+        printf("N\n");
     }
 
     return 0;

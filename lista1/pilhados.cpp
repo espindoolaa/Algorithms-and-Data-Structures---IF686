@@ -1,44 +1,40 @@
 #include <iostream>
-/* abordagem definida é ineficiente, porque implementa uma lista duplamente ligada em vez de sempre começar pelo topo. (pior caso sempre será O(n))
-*/ 
+
 struct Node {
     int packages;
     Node* prev;
     Node* next;
 };
 
-void pushBack(Node** head, int packages){
+// function thats pushes back a new node
+void pushBack(Node** head, Node** tail, int packages){
+    Node* new_node = new Node{packages, *tail, nullptr};
     // if the head hasn't value
     if (*head == nullptr){
-        Node* new_node = new Node{packages, nullptr, nullptr};
         *head = new_node;
-    } 
-
-    // there are a head
-    else {  
-        // found the last element of the list 
-        Node* atual = *head;
-        while (atual->next != nullptr){
-            atual = atual->next;
-        }
-        
+    } else {          
         // new node is pushed to the back of the stack 
-        Node* new_node = new Node{packages, atual, nullptr};
-        atual->next = new_node;
+        (*tail)->next = new_node;   
     }
 
-
+    *tail = new_node;
 }
 
-void removeBack(Node** last){
-    Node* toDel = *last;
-    *last = (*last)->prev;
-    if(*last != nullptr){
-        (*last)->next = nullptr;
+// function thats removes back a new node
+void removeBack(Node** head, Node** tail){
+    Node* toDel = *tail;
+    *tail = (*tail)->prev;
+    if(*tail != nullptr){
+        (*tail)->next = nullptr;
+    } else {
+        // stack is empty
+        *head = nullptr;
     }
+
     delete toDel;
 }
 
+// finds the difference between the packages of two nodes
 int myAbs(int a, int b){
     int result;
     if (a - b < 0){
@@ -50,37 +46,56 @@ int myAbs(int a, int b){
     return result;
 }
 
-void analyseParity(Node** head){
-    // found the last element of the list
-    Node* last = *head; // auxiliar node created
-    while (last->next != nullptr){
-        last = last->next;
-    }
+// analyses the parity between the last node and previous of the last node (recursive)
+void analyseParity(Node** head, Node** tail){
+    // first check
+    if (*tail == nullptr || (*tail)->prev == nullptr) return;
 
-    // then analyse the parity between the last two values while exists this condition;
-    while ((last->prev != nullptr) && ((last->packages % 2) == (last->prev->packages % 2))){ 
-        last->prev->packages = myAbs(last->packages, last->prev->packages); // assumes his new value
+    // last element of the list
+    Node* last = *tail; 
 
-        // now, it's necessary to the delet the last node, that won't exist anymore
-        removeBack(&last);
+    // then analyse the parity between the last two values while exists this condition
+    while (last != nullptr && last->prev != nullptr && (last->packages % 2 == last->prev->packages % 2)){ 
+        int diff = myAbs(last->packages, last->prev->packages); // assumes his new value
+
+        Node* prevNode = last->prev; // auxiliar node to carry the previous
+        removeBack(head, tail); // this function updates the tail
+
+        if (diff == 0){
+            removeBack(head, tail); 
+            last = *tail;
+        } else {
+            prevNode->packages = diff;
+            last = prevNode;
+        }
+        
     }
 }
 
-
+// print number of elements and top of stack
 void printElementsAndTop(Node** head, int n_stack){
-    int elements = 0, top_value = -1;
-    Node* atual = *head;
+    int elements = 0;
 
-    while(atual->next != nullptr){
-        top_value = atual->packages;
+    if (*head == nullptr){
+        std::cout << "Pilha " << n_stack << ": 0 -1\n"; 
+        return;
+    }
+
+
+    Node* atual = *head;
+    Node* last = nullptr;
+
+    while(atual != nullptr){
+        // always updates the last node until reaches the end of the doubly-linked-list
+        last = atual;
         atual = atual->next;
         elements++;
     }
 
-
-    std::cout << "Pilha " << n_stack << ": " << elements << " " << top_value << "\n"; 
+    std::cout << "Pilha " << n_stack << ": " << elements << " " << last->packages << "\n"; 
 }
 
+// free the memory alocated
 void freeStack(Node** head){
     Node* atual = *head;
 
@@ -99,21 +114,16 @@ int main(){
 
     while (cases--){
         Node* head = nullptr;
+        Node* tail = nullptr; // pointer thats points to the last element of the list 
         n_stack++;
-        bool run = true;
 
-        while (run){          
-            std::cin >> packages;
-            if (packages != 0){
-                pushBack(&head, packages);
-                analyseParity(&head);
-
-            } else {
-                printElementsAndTop(&head, n_stack);
-                freeStack(&head);
-                run = false;
-            }
+        while (std::cin >> packages && packages != 0){          
+            pushBack(&head, &tail, packages);
+            analyseParity(&head, &tail);
         }
+
+        printElementsAndTop(&head, n_stack);
+        freeStack(&head);  
     }
 
     return 0;
